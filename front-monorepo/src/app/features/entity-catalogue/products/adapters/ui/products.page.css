@@ -1,0 +1,78 @@
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+header,
+.list-heading,
+.actions,
+.auth-actions,
+.row-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+header,
+.list-heading {
+  justify-content: space-between;
+}
+
+section {
+  margin-top: 24px;
+}
+
+form {
+  display: grid;
+  gap: 12px;
+  max-width: 520px;
+}
+
+label {
+  display: grid;
+  gap: 4px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+}
+
+input,
+textarea {
+  padding: 8px;
+  border: 1px solid #b9b9b9;
+  border-radius: 4px;
+}
+
+button {
+  padding: 8px 12px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border-top: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.error {
+  color: #b00020;
+}

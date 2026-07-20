@@ -1,0 +1,11 @@
+app:
+  security:
+    enabled: ${APP_SECURITY_ENABLED:true}
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OIDC_ISSUER_URI:http://localhost:8081/realms/training-demo}
+          jwk-set-uri: ${OIDC_JWK_SET_URI:http://keycloak:8080/realms/training-demo/protocol/openid-connect/certs}

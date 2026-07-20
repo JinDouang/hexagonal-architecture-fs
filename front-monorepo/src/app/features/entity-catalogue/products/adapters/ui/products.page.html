@@ -1,0 +1,90 @@
+<main class="page">
+  <header>
+    <h1>Entity catalogue - Products</h1>
+    <div class="auth-actions">
+      <button type="button" (click)="login()">Login Keycloak</button>
+      <button type="button" (click)="logout()" [disabled]="!auth.authenticated()">Logout</button>
+      <span>{{ auth.authenticated() ? 'Bearer token ready' : 'Anonymous / local mode' }}</span>
+    </div>
+  </header>
+
+  <section>
+    <h2>{{ facade.selectedProduct() ? 'Update product' : 'Create product' }}</h2>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label>
+        Name
+        <input type="text" formControlName="name" />
+      </label>
+      <label>
+        Description
+        <textarea rows="3" formControlName="description"></textarea>
+      </label>
+      <label>
+        Price
+        <input type="number" min="0" step="0.01" formControlName="price" />
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" formControlName="moodleSyncEnabled" />
+        Sync with Moodle on activate/deactivate
+      </label>
+      <div class="actions">
+        <button type="submit" [disabled]="facade.loading()">{{ facade.selectedProduct() ? 'Update' : 'Create' }}</button>
+        <button type="button" (click)="resetForm()">Reset</button>
+      </div>
+    </form>
+  </section>
+
+  <section>
+    <div class="list-heading">
+      <h2>Products</h2>
+      <button type="button" (click)="facade.loadProducts()" [disabled]="facade.loading()">Refresh</button>
+    </div>
+
+    @if (facade.loading()) {
+      <p>Loading...</p>
+    }
+    @if (facade.error()) {
+      <p class="error">{{ facade.error() }}</p>
+    }
+
+    <p>Total: {{ facade.products().length }} | Active: {{ facade.activeCount() }}</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Status</th>
+          <th>Moodle</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (product of facade.products(); track product.id) {
+          <tr>
+            <td>
+              <strong>{{ product.name }}</strong><br />
+              <small>{{ product.description }}</small>
+            </td>
+            <td>{{ product.price | currency:'EUR' }}</td>
+            <td>{{ product.active ? 'Active' : 'Inactive' }}</td>
+            <td>{{ product.moodleSyncEnabled ? 'Yes' : 'No' }}</td>
+            <td class="row-actions">
+              <button type="button" (click)="edit(product)">Edit</button>
+              @if (product.active) {
+                <button type="button" (click)="facade.deactivateProduct(product.id)">Deactivate</button>
+              } @else {
+                <button type="button" (click)="facade.activateProduct(product.id)">Activate</button>
+              }
+              <button type="button" (click)="facade.removeProduct(product.id)">Delete</button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5">No products yet.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+</main>

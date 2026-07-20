@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: training_catalogue
+      POSTGRES_USER: training
+      POSTGRES_PASSWORD: training
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U training -d training_catalogue"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./infra/keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+
+  api:
+    build:
+      context: ./api-monorepo
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/training_catalogue
+      SPRING_DATASOURCE_USERNAME: training
+      SPRING_DATASOURCE_PASSWORD: training
+      APP_SECURITY_ENABLED: "true"
+      OIDC_ISSUER_URI: http://localhost:8081/realms/training-demo
+      OIDC_JWK_SET_URI: http://keycloak:8080/realms/training-demo/protocol/openid-connect/certs
+      APP_CORS_ALLOWED_ORIGINS: http://localhost:4200
+      APP_MOODLE_ENABLED: "false"
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+
+  front:
+    build:
+      context: ./front-monorepo
+    ports:
+      - "4200:80"
+    depends_on:
+      - api
+
+volumes:
+  postgres-data:
